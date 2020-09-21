@@ -2,7 +2,7 @@ import pandas as pd
 from pandas import DataFrame
 import logging
 
-logger = logging.getLogger('pylaxin')
+logger = logging.getLogger('jsonml')
 
 
 class MDataFrame:

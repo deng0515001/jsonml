@@ -5,11 +5,11 @@ from setuptools import setup, find_packages
 #打包命令 python3 setup.py bdist_wheel
 
 setup(
-    name="laxin",
+    name="jsonml",
     version="0.0.8",
-    keywords=("laxin", "model pipeline"),
-    description="The model pipeline for laxin group",
-    long_description="The model pipeline for laxin group",
+    keywords=("jsonml", "model pipeline"),
+    description="The model pipeline for jsonml group",
+    long_description="The model pipeline for jsonml group",
     license="MIT",
 
     url="",
@@ -17,10 +17,10 @@ setup(
     author_email="451408963@qq.com",
 
     # package_dir={'lxtest': 'lxtest', 'utils': 'utils'},         # 指定哪些包的文件被映射到哪个源码包
-    packages=['laxin'],       # 需要打包的目录。如果多个的话，可以使用find_packages()自动发现
+    packages=['jsonml'],       # 需要打包的目录。如果多个的话，可以使用find_packages()自动发现
     include_package_data=True,
     py_modules=[],          # 需要打包的python文件列表
-    data_files=['laxin/udf_param.json'],          # 打包时需要打包的数据文件
+    data_files=['jsonml/udf_param.json'],          # 打包时需要打包的数据文件
     platforms="any",
     install_requires=[      # 需要安装的依赖包
         'sklearn>=0.0',

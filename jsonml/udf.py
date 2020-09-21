@@ -1,12 +1,12 @@
 import json
-from laxin import datesutil
-from laxin import datautil
+from jsonml import datesutil
+from jsonml import datautil
 import logging
 import math
 from pandas.core.series import Series
 
 
-logger = logging.getLogger('pylaxin')
+logger = logging.getLogger('jsonml')
 
 
 class Copy:

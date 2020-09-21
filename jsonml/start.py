@@ -1,16 +1,16 @@
-from laxin import source
+from jsonml import source
 from pandas import DataFrame
 import json
-from laxin import dataprocess
-from laxin.dataprocess import MDataFrame
+from jsonml import dataprocess
+from jsonml.dataprocess import MDataFrame
 import numpy as np
 import importlib
-from laxin import datautil
-from laxin import datesutil
+from jsonml import datautil
+from jsonml import datesutil
 import copy
 import time
-import laxin.model as mmodel
-from laxin.model import ModelProcess
+import jsonml.model as mmodel
+from jsonml.model import ModelProcess
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import gc
@@ -19,7 +19,7 @@ import re
 
 import os
 
-logger = logging.getLogger('pylaxin')
+logger = logging.getLogger('jsonml')
 
 
 group_udf_mapping = {
@@ -43,7 +43,7 @@ def load_udf(name, paramlist):
         mod_name = ".".join([parts[i] for i in range(0, len(parts) - 1)])
         cls_name = parts[-1]
     else:
-        mod_name = 'laxin.udf'
+        mod_name = 'jsonml.udf'
         cls_name = name
     mod = importlib.import_module(mod_name)
     cls = getattr(mod, cls_name)

@@ -4,7 +4,7 @@ import math
 from pandas import DataFrame
 import logging
 
-logger = logging.getLogger('pylaxin')
+logger = logging.getLogger('jsonml')
 
 
 def top_analyse(label_arr, pred_prob_arr, top_percent=0.2):

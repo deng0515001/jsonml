@@ -1,4 +1,4 @@
-from laxin import start
+from jsonml import start
 import pandas as pd
 import sys
 
@@ -17,5 +17,5 @@ if __name__ == "__main__":
     elif len(sys.argv) >= 2:
         config_path = sys.argv[1]
 
-    start.start(config_path, date = date)
+    start.start(config_path, date=date)
 

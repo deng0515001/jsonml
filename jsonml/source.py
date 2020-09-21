@@ -3,13 +3,13 @@ from pandas import DataFrame
 import os
 import time
 import json
-from laxin import fileutil
-from laxin import datautil
+from jsonml import fileutil
+from jsonml import datautil
 import numpy as np
 import logging
 import sys
 
-logger = logging.getLogger('pylaxin')
+logger = logging.getLogger('jsonml')
 
 
 def csv(file_path, columns, field_delimiter=',', ignore_first_line=False, ignore_error_line=False, ignore_blank_line=True):
