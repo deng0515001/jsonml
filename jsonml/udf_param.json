@@ -1,0 +1,45 @@
+{
+    "Replace": {
+        "source": "param1",
+        "dest": "param2"
+    },
+    "ReplaceByColumn": {
+        "source": "param1"
+    },
+    "Str2Timestamp": {
+        "date_type": "param1"
+    },
+    "SplitToColumns": {
+        "split_type": "param1",
+        "filter_columns": "param2",
+        "default_value": "param3"
+    },
+    "SplitToList": {
+        "split_type": "param1",
+        "split_str": "param2"
+    },
+    "LatestValid": {
+        "sort_columns":"param1"
+    },
+    "Mapping": {
+        "mapping":"param1",
+        "default_value":"param2",
+        "type":"param3"
+    },
+    "OneHot": {
+        "labels": "param1"
+    },
+    "MovingWindow": {
+        "window": "param1"
+    },
+    "Bucket": {
+        "bucket": "param1"
+    },
+    "DictToList": {
+        "keys": "param1",
+        "default": "param2"
+    },
+    "DictToListByColumn": {
+        "default": "param1"
+    }
+}

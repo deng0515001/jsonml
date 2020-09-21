@@ -1,0 +1,398 @@
+{
+  "debug": false,
+  "source": {
+    "type": "text",
+    "input": {
+      "path": "/data2/user/dengxingqi/data/3yuan/l4/train",
+      "path1": "./new.log",
+      "field_delimiter": "0x01",
+      "ignore_error_line": true,
+      "is_stream": true,
+      "batch_count": 30000,
+      "batch_key": [
+        "uid",
+        "toufang_dt"
+      ],
+      "is_sorted": true
+    },
+    "columns": [
+      "uid:int:0",
+      "grade:int:0",
+      "family_role:int:0",
+      "city_level",
+      "app_list",
+      "fr",
+      "marker_info",
+      "fea_dt",
+      "toufang_dt",
+      "yls_hk_sex:int:0",
+      "yls_playrole:int:0",
+      "yls_regtime:int:0",
+      "userfunction",
+      "yls_searchtime:float:0.0",
+      "yls_continuous:float:0.0",
+      "yls_watchtime:float:0.0",
+      "yls_dayitime:int:0",
+      "yls_dayifee:int:0",
+      "yls_zengzhitime:int:0",
+      "yls_zengzhifee:int:0",
+      "yls_predict_sex:int:0",
+      "yls_predict_role:int:0",
+      "ylp_papertotal:int:0",
+      "ylp_paperfinish:int:0",
+      "ylp_specialtotal:int:0",
+      "ylp_weekpapertotal:int:0",
+      "ylp_weekpaperfinish:int:0",
+      "ylp_weekspecialtotal:int:0",
+      "ylp_monthpapertotal:int:0",
+      "ylp_monthpaperfinish:int:0",
+      "ylp_monthspecialtotal:int:0",
+      "ylp_latestpapertime:int:0",
+      "ylp_latestspecialtime:int:0",
+      "ylp_paper_right:int:0",
+      "ylp_paper_wrong:int:0",
+      "ylp_special_right:int:0",
+      "ylp_special_wrong:int:0",
+      "ylp_week_syncpractice_count:int:0",
+      "ylp_month_syncpractice_count:int:0",
+      "ylp_latest_syncpractice_time:int:0",
+      "ads_pv1:int:0",
+      "ads_pv7:int:0",
+      "ads_pv30:int:0",
+      "unionid_cnt:int:0",
+      "app_cnt:int:0",
+      "app_qrcode:int:0",
+      "is_mau",
+      "is_dau",
+      "phrase",
+      "reg_day_to_now:int:0",
+      "yike_type",
+      "province",
+      "city",
+      "pred_prob_l0",
+      "level_l0",
+      "push_date",
+      "label:int:0"
+    ],
+    "filter": {
+      "name": "udf.FilterL0",
+      "input_columns": [
+        "uid",
+        "label"
+      ]
+    },
+    "drop_columns": [
+      "is_mau",
+      "is_dau",
+      "phrase",
+      "yike_type",
+      "pred_prob_l0",
+      "level_l0",
+      "push_date"
+    ]
+  },
+  "process": {
+    "stage_1": {
+      "strategies": [
+        {
+          "name": "Replace",
+          "input_columns": [
+            "app_list",
+            "marker_info",
+            "userfunction",
+            "province"
+          ],
+          "source": [
+            "\\N",
+            "NULL"
+          ],
+          "dest": ""
+        },
+        {
+          "name": "ReplaceByColumn",
+          "input_columns": [
+            [
+              "fea_dt",
+              "toufang_dt"
+            ]
+          ],
+          "output_columns": [
+            "fea_dt"
+          ],
+          "source": [
+            "\\N",
+            "NULL"
+          ],
+          "keep_input_columns": true
+        },
+        {
+          "name": "StrDaysInterval",
+          "input_columns": [[
+              "toufang_dt",
+              "fea_dt"
+          ]],
+          "output_columns": [
+            "fea_dt_index"
+          ],
+          "keep_input_columns": true
+        },
+        {
+          "name": "udf.SplitAppToSet",
+          "input_columns": [
+            "app_list"
+          ]
+        },
+        {
+          "name": "Str2Timestamp",
+          "input_columns": [
+            "toufang_dt"
+          ],
+          "output_columns": [
+            "toufang_time"
+          ],
+          "keep_input_columns": true
+        }
+      ]
+    },
+    "stage_2": {
+      "type": "group",
+      "group_key_columns": [
+        "uid",
+        "toufang_dt",
+        "grade"
+      ],
+      "sort_key_columns": [
+        "fea_dt"
+      ],
+      "keep_group_keys": true,
+      "strategies": [
+        {
+          "name": "CollectSet",
+          "input_columns": [
+            "app_list"
+          ]
+        },
+        {
+          "name": "LatestValid",
+          "default": true
+        }
+      ]
+    },
+    "stage_3": {
+      "strategies": [
+        {
+          "name": "DaysInterval",
+          "input_columns": [
+            [
+              "toufang_time",
+              "yls_regtime"
+            ],
+            [
+              "toufang_time",
+              "ylp_latestpapertime"
+            ],
+            [
+              "toufang_time",
+              "ylp_latestspecialtime"
+            ],
+            [
+              "toufang_time",
+              "ylp_latest_syncpractice_time"
+            ]
+          ],
+          "output_columns": [
+            "yls_regtime",
+            "ylp_latestpapertime",
+            "ylp_latestspecialtime",
+            "ylp_latest_syncpractice_time"
+          ],
+          "keep_input_columns": true
+        },
+        {
+          "name": "udf.CityMeanPool",
+          "input_columns": [[
+            "family_role",
+            "province",
+            "city",
+            "fr",
+            "app_list"
+          ]],
+          "param1": "./conf/embedding.vector",
+          "output_columns_prefix": "city_vector_",
+          "split_column_count": 100,
+          "keep_input_columns": true
+        },
+        {
+          "name": "udf.MeanPool",
+          "input_columns": [
+            "app_list"
+          ],
+          "param1": "./conf/app.vector",
+          "output_columns_prefix": "appvector_",
+          "split_column_count": 128
+        },
+        {
+          "name": "OneHot",
+          "input_columns": [
+            "family_role"
+          ],
+          "suffix_use_label": true,
+          "labels_file": "./conf/data_process_merge.json[one_hot][family_role]",
+          "output_columns_suffix": "-ohe-",
+          "split_column_count": 7
+        },
+        {
+          "name": "OneHot",
+          "input_columns": [
+            "city_level"
+          ],
+          "suffix_use_label": true,
+          "labels_file": "./conf/data_process_merge.json[one_hot][city_level]",
+          "output_columns_suffix": "-ohe-",
+          "split_column_count": 6
+        },
+        {
+          "name": "OneHot",
+          "input_columns": [
+            "province"
+          ],
+          "suffix_use_label": true,
+          "labels_file": "./conf/data_process_merge.json[one_hot][province]",
+          "output_columns_suffix": "-ohe-",
+          "split_column_count": 35
+        },
+        {
+          "name": "OneHot",
+          "input_columns": [
+            "fr"
+          ],
+          "suffix_use_label": true,
+          "labels_file": "./conf/data_process_merge.json[one_hot][fr]",
+          "output_columns_suffix": "-ohe-",
+          "split_column_count": 4
+        },
+        {
+          "name": "OneHot",
+          "input_columns": [
+            "yls_hk_sex",
+            "yls_predict_sex",
+            "yls_predict_role"
+          ],
+          "suffix_use_label": true,
+          "labels_file": "./conf/data_process_merge.json[one_hot][yls_hk_sex]",
+          "output_columns_suffix": "-ohe-",
+          "split_column_count": 4
+        },
+        {
+          "name": "OneHot",
+          "input_columns": [
+            "yls_playrole"
+          ],
+          "suffix_use_label": true,
+          "labels_file": "./conf/data_process_merge.json[one_hot][yls_playrole]",
+          "output_columns_suffix": "-ohe-",
+          "split_column_count": 8
+        },
+        {
+          "name": "Bucket",
+          "input_columns": [
+            "yls_regtime"
+          ],
+          "bucket_file": "./conf/data_process_merge.json[bucket][yls_regtime]"
+        },
+        {
+          "name": "OneHot",
+          "input_columns": [
+            "yls_regtime"
+          ],
+          "suffix_use_label": true,
+          "labels_file": "./conf/data_process_merge.json[bucket][yls_regtime_ohe]",
+          "output_columns_suffix": "-buck-",
+          "split_column_count": 5
+        },
+        {
+          "name": "Bucket",
+          "input_columns": [
+            "ylp_latestpapertime"
+          ],
+          "bucket_file": "./conf/data_process_merge.json[bucket][ylp_latestpapertime]"
+        },
+        {
+          "name": "OneHot",
+          "input_columns": [
+            "ylp_latestpapertime"
+          ],
+          "suffix_use_label": true,
+          "labels_file": "./conf/data_process_merge.json[bucket][ylp_latestpapertime_ohe]",
+          "output_columns_suffix": "-buck-",
+          "split_column_count": 6
+        },
+        {
+          "name": "Bucket",
+          "input_columns": [
+            "ylp_latestspecialtime",
+            "ylp_latest_syncpractice_time"
+          ],
+          "bucket_file": "./conf/data_process_merge.json[bucket][ylp_latestspecialtime]"
+        },
+        {
+          "name": "OneHot",
+          "input_columns": [
+            "ylp_latestspecialtime",
+            "ylp_latest_syncpractice_time"
+          ],
+          "suffix_use_label": true,
+          "labels_file": "./conf/data_process_merge.json[bucket][ylp_latestspecialtime_ohe]",
+          "output_columns_suffix": "-buck-",
+          "split_column_count": 4
+        },
+        {
+          "name": "SplitToColumns",
+          "input_columns": [
+            [
+              "userfunction"
+            ]
+          ],
+          "split_type": "json",
+          "filter_columns_file": "./conf/data_process_merge.json[weight_category][userfunction][0]",
+          "output_columns_file": "./conf/data_process_merge.json[weight_category][userfunction]",
+          "output_columns_prefix": "userfunction-",
+          "default_value": 0
+        },
+        {
+          "name": "DropColumn",
+          "input_columns": [
+            "marker_info",
+            "city",
+            "grade",
+            "uid",
+            "toufang_dt",
+            "toufang_time",
+            "fea_dt",
+            "fea_dt_index"
+          ]
+        },
+        {
+          "name": "Output",
+          "path": "./train_20200801.csv",
+          "type": "text",
+          "field_delimiter": "\t"
+        }
+      ]
+    }
+  },
+  "model": {
+    "run_mode": "train",
+    "test_data_percent": 0.1,
+    "validation_data_percent": 0.2,
+    "model_1": {
+      "model_type": "xgboost",
+      "model_config_file": "./conf/xgb_model_config.json",
+      "model_path": "./20200915_L0_9yuan_xgb_M1_T2",
+      "feature_importance": {
+        "path": "",
+        "field_delimiter": "\t"
+      }
+    }
+  }
+}
